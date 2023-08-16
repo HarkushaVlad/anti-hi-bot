@@ -2,9 +2,9 @@
 const { Telegraf } = require('telegraf');
 require('dotenv').config();
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const a = require('./alphabet');
 
-const alph = require('./alphabet');
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.on('message', (ctx) => {
   const chatId = ctx.message.chat.id;
@@ -15,14 +15,30 @@ bot.on('message', (ctx) => {
   const vladId = +process.env.VLAD_ID;
   const bohdanId = +process.env.BOHDAN_ID;
 
-  const regex = /[п|p][р|г|p|r][і|i|и|u|y][в|b|v|6][і|i|j|1|¡][т|t]|[в|b|6][і|i|1|¡][т|t][а|a|á|à|â|ã|@|4][й]?[ю|у|y]|[х|н|h|x][е|э|є|а|e|a|3|@|á|à|â|ã|4][л|і|l|i|j|\||\\|\/|!|1|¡]?[л|і|l|i|\||\\|\/|!|1|¡][о|o|0|ó|ò][у|y|u]?|[б|в|b|6][о|0|ó|ò|o][н|п|n][ж|j][о|0|ó|ò|o]?[у|y|u][р|г|r][но|nо|нo|no]?/i;
+  const uaPryvit = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])${a.uaP}${a.uaR}${a.uaYi}${a.uaV}${a.uaI}${a.uaT}(?:$|[^a-zA-Zа-яА-Я])`, 'i');
+  const engPryvit = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])${a.engP}${a.engR}${a.engY}(${a.engU})?${a.engV}(${a.engW})?${a.engI}${a.engT}(?:$|[^a-zA-Zа-яА-Я])`, 'i');
+  const engPrivet = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])${a.engP}(${a.engR})?${a.engI}(${a.engV}|${a.engW})?${a.engE}${a.engT}(?:$|[^a-zA-Zа-яА-Я])`, 'i');
+  const engHello = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])${a.engH}(${a.engE}|${a.engA})?${a.engL}(${a.engL})?${a.engO}(?:$|[^a-zA-Zа-яА-Я])`, 'i');
+  const uaHello = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])${a.uaKh}(${a.uaE}|${a.uaA})?${a.uaL}(${a.uaL})?${a.uaO}(${a.uaU})?(?:$|[^a-zA-Zа-яА-Я])`, 'i');
+  const engHi = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])${a.engH}${a.engI}(?:$|[^a-zA-Zа-яА-Я])`, 'i');
+  const uaHi = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])${a.uaKh}${a.uaA}${a.uaY}(?:$|[^a-zA-Zа-яА-Я])`, 'i');
+  const engZdarova = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])(${a.engZ})?${a.engD}(${a.engA}|${a.engO})?${a.engR}${a.engO}(${a.engV}|${a.engU})?(${a.engA})?(?:$|[^a-zA-Zа-яА-Я])`, 'i');
+  const uaZdarova = new RegExp(`(?:^|[^a-zA-Zа-яА-Я])(${a.uaZ})?${a.uaD}(${a.uaA}|${a.uaO})?${a.uaR}${a.uaO}(${a.uaV}|${a.uaU})?(${a.engA})?(?:$|[^a-zA-Zа-яА-Я])`, 'i');
 
-  if (userId !== vladId && regex.test(msgText)) {
+  if (userId !== vladId &&
+    (uaPryvit.test(msgText) ||
+      engPryvit.test(msgText) ||
+      engPrivet.test(msgText) ||
+      engHello.test(msgText) ||
+      uaHello.test(msgText) ||
+      engHi.test(msgText) ||
+      uaHi.test(msgText) ||
+      engZdarova.test(msgText) ||
+      uaZdarova.test(msgText))
+  ) {
     ctx.telegram.deleteMessage(chatId, msgId);
     ctx.telegram.sendMessage(chatId, `@${username} пока🫡`);
   }
 });
 
 bot.launch();
-
-//|[х|x|н|h][і||i|1|¡]|[х|x|н|h][а|a|á|à|â|ã|@][й|и|і|i] hi хай
