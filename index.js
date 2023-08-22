@@ -11,7 +11,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 const GIPHY_API_KEY = process.env.GIPHY_API_KEY;
 
 bot.on('message', async (ctx) => {
-  // variables for telegram messages
+  // variables for telegram api
   const chatId = ctx.message.chat.id;
   const msgId = ctx.message.message_id;
   const userId = ctx.message.from.id;
@@ -53,31 +53,53 @@ bot.on('message', async (ctx) => {
       engNihao.test(msgText))
   ) {
     ctx.telegram.deleteMessage(chatId, msgId);
-    ctx.telegram.sendMessage(chatId, `@${username} пока🫡`);
+    ctx.reply(`@${username} пока🫡`);
   }
 
   // answers to laughter
   if (laugh.test(msgText) && Math.random() > 0.75) {
-    ctx.telegram.sendMessage(chatId, `АХАХАХАХАХАХ`);
+    ctx.reply(`АХАХАХАХАХАХ`);
   } else if (laugh.test(msgText) && Math.random() > 0.55) {
-    ctx.telegram.sendMessage(chatId, `АХАХАХАХАХАХАХАА🤣🤣😂👆💯`);
+    ctx.reply(`АХАХАХАХАХАХАХАА🤣🤣😂👆💯`);
   } else if (laugh.test(msgText) && Math.random() > 0.25) {
-    ctx.telegram.sendMessage(chatId, `Ахахахахах🤡🤡🤡`);
+    ctx.reply(`Ахахахахах🤡🤡🤡`);
   } else if (laugh.test(msgText) && Math.random() > 0.1) {
-    ctx.telegram.sendMessage(chatId, `АХАХахах.. Не смішно😐`);
+    ctx.reply(`АХАХахах.. Не смішно😐`);
   }
 
   // answers to photos
   if (ctx.message.photo && Math.random() > 0.75 && userId === bohdanId) {
     ctx.telegram.sendAnimation(chatId, 'https://tenor.com/uk/view/bogdan-moment-gif-21819300', { reply_to_message_id: msgId });
-  } else if (ctx.message.photo && Math.random() > 0.75) {
-    ctx.telegram.sendAnimation(chatId, 'https://tenor.com/uk/view/eyes-gif-21821822', { reply_to_message_id: msgId });
-  } else if (ctx.message.photo && Math.random() > 0.72) {
-    ctx.telegram.sendAnimation(chatId, 'https://tenor.com/uk/view/didnt-laugh-not-funny-didnt-laugh-not-funny-not-funny-didnt-laugh-meme-funny-gif-25394895', { reply_to_message_id: msgId });
-  } else if (ctx.message.photo && Math.random() > 0.67) {
-    ctx.telegram.sendAnimation(chatId, 'https://tenor.com/uk/view/looking-around-guilty-confused-gif-15013187', { reply_to_message_id: msgId });
-  } else if (ctx.message.photo && Math.random() > 0.62) {
-    ctx.telegram.sendAnimation(chatId, 'https://tenor.com/uk/view/look-at-me-look-at-this-do-you-see-this-mmhmm-ok-gif-17858627', { reply_to_message_id: msgId });
+  } else if (ctx.message.photo && Math.random() > 0.6) {
+    try {
+      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=look`);
+      const gifUrl = response.data.data.images.original.url;
+
+      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
+    } catch (error) {
+      console.error(error);
+      ctx.reply(`Тут повинна була бути гіфка, але щось пішло не так😢\n\n${error}`);
+    }
+  } else if (ctx.message.photo && Math.random() > 0.4) {
+    try {
+      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=cringe`);
+      const gifUrl = response.data.data.images.original.url;
+
+      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
+    } catch (error) {
+      console.error(error);
+      ctx.reply(`Тут повинна була бути гіфка, але щось пішло не так😢\n\n${error}`);
+    }
+  } else if (ctx.message.photo && Math.random() > 0.2) {
+    try {
+      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=laugh`);
+      const gifUrl = response.data.data.images.original.url;
+
+      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
+    } catch (error) {
+      console.error(error);
+      ctx.reply(`Тут повинна була бути гіфка, але щось пішло не так😢\n\n${error}`);
+    }
   }
 
   // answers to adjactives
@@ -102,12 +124,12 @@ bot.on('message', async (ctx) => {
 
       ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
     } catch (error) {
-      console.error('Error fetching GIF:', error);
+      console.error(error);
       ctx.reply(`Ти можеш нормальні запити робити?\n${error}`);
     }
   }
 
-  // send gifs
+  // send random gif
   if (Math.random() > 0.95 && ctx.message.hasOwnProperty('text')) {
     try {
       //translation
@@ -124,8 +146,8 @@ bot.on('message', async (ctx) => {
 
       ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
     } catch (error) {
-      console.error('Error:', error);
-      ctx.reply(`Я хотів відправити якусь смішнявку, але щось пішло не так\n${error}`);
+      console.error(error);
+      ctx.reply(`Я хотів відправити якусь смішнявку, але щось пішло не так😢\n\n${error}`);
     }
   }
 });
