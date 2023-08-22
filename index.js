@@ -1,6 +1,7 @@
 /* eslint-disable */
 const { Telegraf } = require('telegraf');
 const axios = require('axios');
+const translatte = require('translatte');
 require('dotenv').config();
 
 // import regex
@@ -85,19 +86,46 @@ bot.on('message', async (ctx) => {
     ctx.telegram.sendMessage(chatId, `Cам ти ${adjInMsg}`, { reply_to_message_id: msgId });
   }
 
-  // sending gifs
+  // search gifs
   if (botName.test(msgText)) {
     const tag = msgText.replace(/[ ]?@anti_HI_bot[ ]?/g, '');
-    console.log(tag)
 
     try {
-      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=${tag}`);
+      //translation
+      const transTag = await translatte(tag, {
+        from: 'auto',
+        to: 'en',
+      });
+
+      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=${transTag.text}`);
       const gifUrl = response.data.data.images.original.url;
 
       ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
     } catch (error) {
       console.error('Error fetching GIF:', error);
-      ctx.reply(`Ти можеш нормальні запити давати, інвалід?\n${error}`);
+      ctx.reply(`Ти можеш нормальні запити робити?\n${error}`);
+    }
+  }
+
+  // send gifs
+  if (Math.random() > 0.95 && ctx.message.hasOwnProperty('text')) {
+    try {
+      //translation
+      const transMsgText = await translatte(msgText, {
+        from: 'auto',
+        to: 'en',
+      });
+
+      const msgArr = transMsgText.text.split(' ');
+      const randomTag = msgArr[Math.floor(Math.random() * (msgArr.length - 1))];
+
+      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=${randomTag}`);
+      const gifUrl = response.data.data.images.original.url;
+
+      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
+    } catch (error) {
+      console.error('Error:', error);
+      ctx.reply(`Я хотів відправити якусь смішнявку, але щось пішло не так\n${error}`);
     }
   }
 });

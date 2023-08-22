@@ -125,8 +125,8 @@ const uaSoftSign = alphabetUa['ь'];
 const uaYu = alphabetUa['ю'];
 const uaYa = alphabetUa['я'];
 
-const begin = '(?:[^a-zа-іїє]|^)';
-const end = '(?:[^a-zа-яіїє]|$)';
+const begin = '(?:[^a-zа-іїє_]|^)';
+const end = '(?:[^a-zа-яіїє_]|$)';
 
 module.exports = {
   engA,
