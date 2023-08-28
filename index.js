@@ -8,7 +8,7 @@ require('dotenv').config();
 const a = require('./alphabet');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-const GIPHY_API_KEY = process.env.GIPHY_API_KEY;
+const TENOR_API_KEY = process.env.TENOR_API_KEY;
 
 bot.on('message', async (ctx) => {
   // variables for telegram api
@@ -72,8 +72,8 @@ bot.on('message', async (ctx) => {
     ctx.telegram.sendAnimation(chatId, 'https://tenor.com/uk/view/bogdan-moment-gif-21819300', { reply_to_message_id: msgId });
   } else if (ctx.message.photo && Math.random() > 0.8) {
     try {
-      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=look`);
-      const gifUrl = response.data.data.images.original.url;
+      const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=look&key=${TENOR_API_KEY}&random=true&limit=1`);
+      const gifUrl = response.data.results[0].url;
 
       ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
     } catch (error) {
@@ -82,8 +82,8 @@ bot.on('message', async (ctx) => {
     }
   } else if (ctx.message.photo && Math.random() > 0.65) {
     try {
-      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=cringe`);
-      const gifUrl = response.data.data.images.original.url;
+      const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=cringe&key=${TENOR_API_KEY}&random=true&limit=1`);
+      const gifUrl = response.data.results[0].url;
 
       ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
     } catch (error) {
@@ -92,8 +92,8 @@ bot.on('message', async (ctx) => {
     }
   } else if (ctx.message.photo && Math.random() > 0.5) {
     try {
-      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=laugh`);
-      const gifUrl = response.data.data.images.original.url;
+      const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=laugh&key=${TENOR_API_KEY}&random=true&limit=1`);
+      const gifUrl = response.data.results[0].url;
 
       ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
     } catch (error) {
@@ -108,27 +108,6 @@ bot.on('message', async (ctx) => {
     ctx.telegram.sendMessage(chatId, `Cам ти ${adjInMsg}`, { reply_to_message_id: msgId });
   }
 
-  // search gifs
-  if (botName.test(msgText)) {
-    const tag = msgText.replace(/[ ]?@anti_HI_bot[ ]?/g, '');
-
-    try {
-      //translation
-      const transTag = await translatte(tag, {
-        from: 'auto',
-        to: 'en',
-      });
-
-      const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=${transTag.text}`);
-      const gifUrl = response.data.data.images.original.url;
-
-      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
-    } catch (error) {
-      console.error(error);
-      ctx.reply(`Ти можеш нормальні запити робити?`);
-    }
-  }
-
   // send random gif
   if (Math.random() > 0.95 && ctx.message.hasOwnProperty('text')) {
     try {
@@ -138,13 +117,15 @@ bot.on('message', async (ctx) => {
         to: 'en',
       });
 
+      console.log('done');
+
       const msgArr = transMsgText.text.match(/\b\w{3,}\b/g);
 
       if (msgArr) {
         const randomTag = msgArr[Math.floor(Math.random() * msgArr.length)];
 
-        const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=${randomTag}`);
-        const gifUrl = response.data.data.images.original.url;
+        const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=${randomTag}&key=${TENOR_API_KEY}&random=true&limit=1`);
+        const gifUrl = response.data.results[0].url;
 
         ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
       }
@@ -154,5 +135,14 @@ bot.on('message', async (ctx) => {
     }
   }
 });
+
+//reset old messages while bot was offline
+async function sendGetUpdatesRequest() {
+  const response = await axios.get(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/getUpdates?offset=-1`);
+  console.log(response.data);
+}
+
+sendGetUpdatesRequest();
+
 
 bot.launch();
