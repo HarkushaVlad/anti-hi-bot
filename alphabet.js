@@ -1,4 +1,6 @@
 /* eslint-disable */
+
+/* English alphabet with similar symbols */
 const alphabetEng = {
   'a': '(([ ]?)([а|a|á|à|â|ã|@|4]+)([ ]?))',
   'b': '(([ ]?)([б|b|β|в|в̌|ʙ|ƀ|ʚ|6]+)([ ]?))',
@@ -55,6 +57,7 @@ const engX = alphabetEng.x;
 const engY = alphabetEng.y;
 const engZ = alphabetEng.z;
 
+/* Ukrainian alphabet with similar symbols */
 const alphabetUa = {
   'а': '(([ ]?)([а|a|á|à|â|ã|@|4]+)([ ]?))',
   'б': '(([ ]?)([б|6|β|b|в|ʙ|ƀ|ʚ]+)([ ]?))',
@@ -125,9 +128,11 @@ const uaSoftSign = alphabetUa['ь'];
 const uaYu = alphabetUa['ю'];
 const uaYa = alphabetUa['я'];
 
+/* regex for word boundaries */
 const begin = '(?:[^a-zа-іїє_]|^)';
 const end = '(?:[^a-zа-яіїє_]|$)';
 
+/* export variables */
 module.exports = {
   engA,
   engB,
