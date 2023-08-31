@@ -54,6 +54,7 @@ bot.on('message', async (ctx) => {
   /* variables for trigger words */
   const laugh = new RegExp(`${a.engA}${a.engH}${a.engA}${a.engH}`, 'i');
   const adjective = new RegExp(`[а-яіїє]+ий(?:[а-яіїє]|$)`, 'i');
+  const botName = new RegExp(`@anti_HI_bot`, 'g');
 
   /* check the message on ban words */
   if (userId !== firstId &&
@@ -85,59 +86,70 @@ bot.on('message', async (ctx) => {
   /* answers to photos */
   if (ctx.message.photo && msgDate !== msgDateLimit) {
 
-    // updating the message date`
+    // updating the message date
     msgDateLimit = msgDate;
 
-    // special reply for "second" user
-    if (Math.random() > 0.85 && userId === secondId) {
+    // sending random gifs by keyword
+    async function getRandomGif(keyword) {
+      try {
+        const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=${keyword}&key=${TENOR_API_KEY}&random=true&limit=1`);
+        return response.data.results[0].url;
+      } catch (error) {
+        console.error(error);
+        ctx.reply(`Тут повинна була бути гіфка, але щось пішло не так😢`);
+      }
+    }
+
+    let gifKeyword = '';
+
+    if (Math.random() > 0.85 && userId === secondId) { // special reply for "second" user
       ctx.telegram.sendAnimation(chatId, 'https://tenor.com/uk/view/bogdan-moment-gif-21819300', { reply_to_message_id: msgId });
-      return;
-    }
-
-    // special reply for "third" user
-    if (Math.random() > 0.5 && userId === thirdId) {
+    } else if (Math.random() > 0.5 && userId === thirdId) { // special reply for "third" user
       ctx.reply(`А сьо єто`, { reply_to_message_id: msgId });
-      return;
+    } else if (Math.random() > 0.85) { // answers for all users
+      gifKeyword = 'look';
+    } else if (Math.random() > 0.75) {
+      gifKeyword = 'cringe';
+    } else if (Math.random() > 0.65) {
+      gifKeyword = 'laugh';
     }
 
-    // answers for all users
-    if (Math.random() > 0.85) {
-      try {
-        const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=look&key=${TENOR_API_KEY}&random=true&limit=1`);
-        const gifUrl = response.data.results[0].url;
-
-        ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
-      } catch (error) {
-        console.error(error);
-        ctx.reply(`Тут повинна була бути гіфка, але щось пішло не так😢`);
-      }
-    } else if (Math.random() > 0.7) {
-      try {
-        const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=cringe&key=${TENOR_API_KEY}&random=true&limit=1`);
-        const gifUrl = response.data.results[0].url;
-
-        ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
-      } catch (error) {
-        console.error(error);
-        ctx.reply(`Тут повинна була бути гіфка, але щось пішло не так😢`);
-      }
-    } else if (Math.random() > 0.6) {
-      try {
-        const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=laugh&key=${TENOR_API_KEY}&random=true&limit=1`);
-        const gifUrl = response.data.results[0].url;
-
-        ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
-      } catch (error) {
-        console.error(error);
-        ctx.reply(`Тут повинна була бути гіфка, але щось пішло не так😢`);
-      }
+    if (gifKeyword) {
+      const gifUrl = await getRandomGif(gifKeyword);
+      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
     }
   }
 
   /* answer to adjactives */
-  if (adjective.test(msgText) && Math.random() > 0.65) {
+  if (adjective.test(msgText) && Math.random() > 0.65 && userId === thirdId) {
+    // female
+    const adjInMsg = msgText.match(adjective)[0].replace(/(..)$/, 'а').toLowerCase();
+    ctx.telegram.sendMessage(chatId, `Cама ти ${adjInMsg}`, { reply_to_message_id: msgId });
+  } else if (adjective.test(msgText) && Math.random() > 0.65) {
+    // male
     const adjInMsg = msgText.match(adjective)[0].toLowerCase();
     ctx.telegram.sendMessage(chatId, `Cам ти ${adjInMsg}`, { reply_to_message_id: msgId });
+  }
+
+  /* search gifs */
+  if (botName.test(msgText)) {
+    const tag = msgText.replace(/[ ]?@anti_HI_bot[ ]?/g, '');
+
+    try {
+      // translation
+      const transTag = await translatte(tag, {
+        from: 'auto',
+        to: 'en',
+      });
+
+      const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=${transTag.text}&key=${TENOR_API_KEY}&random=true&limit=1`);
+      const gifUrl = response.data.results[0].url;
+
+      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
+    } catch (error) {
+      console.error(error);
+      ctx.reply(`Ти можеш нормальні запити робити?`);
+    }
   }
 
   /* send random gif */
