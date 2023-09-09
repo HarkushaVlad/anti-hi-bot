@@ -20,7 +20,6 @@ let msgDateLimit = 0;
 
 /* the bot's response to the message */
 bot.on('message', async (ctx) => {
-
   /* variables for telegram api */
   const chatId = ctx.message.chat.id;
   const msgId = ctx.message.message_id;
@@ -36,28 +35,55 @@ bot.on('message', async (ctx) => {
 
   /* reply for private chat */
   if (ctx.message.chat.type === 'private') {
-    ctx.reply('This bot is designed for use in group chats.\nLearn more: https://github.com/HarkushaVlad/anti-hi-bot');
+    ctx.reply(
+      'This bot is designed for use in group chats.\nLearn more: https://github.com/HarkushaVlad/anti-hi-bot'
+    );
     return;
   }
 
   /* variables for ban words */
-  const uaPryvit = new RegExp(`${a.begin}${a.uaP}${a.uaR}${a.uaYi}${a.uaV}${a.uaI}${a.uaT}${a.end}`, 'i');
-  const engPryvit = new RegExp(`${a.begin}${a.engP}${a.engR}${a.engY}(${a.engU})?${a.engV}(${a.engW})?${a.engI}${a.engT}${a.end}`, 'i');
-  const engHello = new RegExp(`${a.begin}${a.engH}(${a.engE}|${a.engA})?${a.engL}(${a.engL})?${a.engO}${a.end}`, 'i');
-  const uaHello = new RegExp(`${a.begin}${a.uaKh}(${a.uaE}|${a.uaA})?${a.uaL}(${a.uaL})?${a.uaO}(${a.uaU})?${a.end}`, 'i');
+  const uaPryvit = new RegExp(
+    `${a.begin}${a.uaP}${a.uaR}${a.uaYi}${a.uaV}${a.uaI}${a.uaT}${a.end}`,
+    'i'
+  );
+  const engPryvit = new RegExp(
+    `${a.begin}${a.engP}${a.engR}${a.engY}(${a.engU})?${a.engV}(${a.engW})?${a.engI}${a.engT}${a.end}`,
+    'i'
+  );
+  const engHello = new RegExp(
+    `${a.begin}${a.engH}(${a.engE}|${a.engA})?${a.engL}(${a.engL})?${a.engO}${a.end}`,
+    'i'
+  );
+  const uaHello = new RegExp(
+    `${a.begin}${a.uaKh}(${a.uaE}|${a.uaA})?${a.uaL}(${a.uaL})?${a.uaO}(${a.uaU})?${a.end}`,
+    'i'
+  );
   const engHi = new RegExp(`${a.begin}${a.engH}${a.engI}${a.end}`, 'i');
-  const uaHi = new RegExp(`${a.begin}${a.uaKh}(${a.uaA}|${a.uaE})${a.uaY}${a.end}`, 'i');
-  const engZdarova = new RegExp(`${a.begin}(${a.engZ})?${a.engD}(${a.engA}|${a.engO})?${a.engR}${a.engO}(${a.engV}|${a.engU})?(${a.engA})?${a.end}`, 'i');
-  const uaZdarova = new RegExp(`${a.begin}(${a.uaZ})?${a.uaD}(${a.uaA}|${a.uaO})?${a.uaR}${a.uaO}(${a.uaV}|${a.uaU})?(${a.engA})?${a.end}`, 'i');
-  const engPrivet = new RegExp(`${a.begin}${a.engP}(${a.engR})?${a.engI}(${a.engV}|${a.engW})?((${a.engE}${a.engT})|(${a.engK}${a.engI}))?${a.end}`, 'i');
+  const uaHi = new RegExp(
+    `${a.begin}${a.uaKh}(${a.uaA}|${a.uaE})${a.uaY}${a.end}`,
+    'i'
+  );
+  const engZdarova = new RegExp(
+    `${a.begin}(${a.engZ})?${a.engD}(${a.engA}|${a.engO})?${a.engR}${a.engO}(${a.engV}|${a.engU})?(${a.engA})?${a.end}`,
+    'i'
+  );
+  const uaZdarova = new RegExp(
+    `${a.begin}(${a.uaZ})?${a.uaD}(${a.uaA}|${a.uaO})?${a.uaR}${a.uaO}(${a.uaV}|${a.uaU})?(${a.engA})?${a.end}`,
+    'i'
+  );
+  const engPrivet = new RegExp(
+    `${a.begin}${a.engP}(${a.engR})?${a.engI}(${a.engV}|${a.engW})?((${a.engE}${a.engT})|(${a.engK}${a.engI}))?${a.end}`,
+    'i'
+  );
 
   /* variables for trigger words */
   const laugh = new RegExp(`${a.engA}${a.engH}${a.engA}${a.engH}`, 'i');
-  const adjective = new RegExp(`[а-яіїє]+ий(?:[а-яіїє]|$)`, 'i');
+  const adjective = new RegExp(`[а-яіїє]+ий$`, 'i');
   const botName = new RegExp(`@anti_HI_bot`, 'g');
 
   /* check the message on ban words */
-  if (userId !== firstId &&
+  if (
+    userId !== firstId &&
     (uaPryvit.test(msgText) ||
       engPryvit.test(msgText) ||
       engPrivet.test(msgText) ||
@@ -85,14 +111,15 @@ bot.on('message', async (ctx) => {
 
   /* answers to photos */
   if (ctx.message.photo && msgDate !== msgDateLimit) {
-
     // updating the message date
     msgDateLimit = msgDate;
 
     // sending random gifs by keyword
     async function getRandomGif(keyword) {
       try {
-        const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=${keyword}&key=${TENOR_API_KEY}&random=true&limit=1`);
+        const response = await axios.get(
+          `https://tenor.googleapis.com/v2/search?q=${keyword}&key=${TENOR_API_KEY}&random=true&limit=1`
+        );
         return response.data.results[0].url;
       } catch (error) {
         console.error(error);
@@ -102,11 +129,18 @@ bot.on('message', async (ctx) => {
 
     let gifKeyword = '';
 
-    if (Math.random() > 0.85 && userId === secondId) { // special reply for "second" user
-      ctx.telegram.sendAnimation(chatId, 'https://tenor.com/uk/view/bogdan-moment-gif-21819300', { reply_to_message_id: msgId });
-    } else if (Math.random() > 0.5 && userId === thirdId) { // special reply for "third" user
+    if (Math.random() > 0.85 && userId === secondId) {
+      // special reply for "second" user
+      ctx.telegram.sendAnimation(
+        chatId,
+        'https://tenor.com/uk/view/bogdan-moment-gif-21819300',
+        { reply_to_message_id: msgId }
+      );
+    } else if (Math.random() > 0.5 && userId === thirdId) {
+      // special reply for "third" user
       ctx.reply(`А сьо єто`, { reply_to_message_id: msgId });
-    } else if (Math.random() > 0.85) { // answers for all users
+    } else if (Math.random() > 0.85) {
+      // answers for all users
       gifKeyword = 'look';
     } else if (Math.random() > 0.75) {
       gifKeyword = 'cringe';
@@ -116,19 +150,28 @@ bot.on('message', async (ctx) => {
 
     if (gifKeyword) {
       const gifUrl = await getRandomGif(gifKeyword);
-      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
+      ctx.telegram.sendAnimation(chatId, gifUrl, {
+        reply_to_message_id: msgId,
+      });
     }
   }
 
   /* answer to adjactives */
   if (adjective.test(msgText) && Math.random() > 0.65 && userId === thirdId) {
     // female
-    const adjInMsg = msgText.match(adjective)[0].replace(/(..)$/, 'а').toLowerCase();
-    ctx.telegram.sendMessage(chatId, `Cама ти ${adjInMsg}`, { reply_to_message_id: msgId });
+    const adjInMsg = msgText
+      .match(adjective)[0]
+      .replace(/(..)$/, 'а')
+      .toLowerCase();
+    ctx.telegram.sendMessage(chatId, `Cама ти ${adjInMsg}`, {
+      reply_to_message_id: msgId,
+    });
   } else if (adjective.test(msgText) && Math.random() > 0.65) {
     // male
     const adjInMsg = msgText.match(adjective)[0].toLowerCase();
-    ctx.telegram.sendMessage(chatId, `Cам ти ${adjInMsg}`, { reply_to_message_id: msgId });
+    ctx.telegram.sendMessage(chatId, `Cам ти ${adjInMsg}`, {
+      reply_to_message_id: msgId,
+    });
   }
 
   /* search gifs */
@@ -142,10 +185,14 @@ bot.on('message', async (ctx) => {
         to: 'en',
       });
 
-      const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=${transTag.text}&key=${TENOR_API_KEY}&random=true&limit=1`);
+      const response = await axios.get(
+        `https://tenor.googleapis.com/v2/search?q=${transTag.text}&key=${TENOR_API_KEY}&random=true&limit=1`
+      );
       const gifUrl = response.data.results[0].url;
 
-      ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
+      ctx.telegram.sendAnimation(chatId, gifUrl, {
+        reply_to_message_id: msgId,
+      });
     } catch (error) {
       console.error(error);
       ctx.reply(`Ти можеш нормальні запити робити?`);
@@ -168,10 +215,14 @@ bot.on('message', async (ctx) => {
       if (msgArr) {
         const randomTag = msgArr[Math.floor(Math.random() * msgArr.length)];
 
-        const response = await axios.get(`https://tenor.googleapis.com/v2/search?q=${randomTag}&key=${TENOR_API_KEY}&random=true&limit=1`);
+        const response = await axios.get(
+          `https://tenor.googleapis.com/v2/search?q=${randomTag}&key=${TENOR_API_KEY}&random=true&limit=1`
+        );
         const gifUrl = response.data.results[0].url;
 
-        ctx.telegram.sendAnimation(chatId, gifUrl, { reply_to_message_id: msgId });
+        ctx.telegram.sendAnimation(chatId, gifUrl, {
+          reply_to_message_id: msgId,
+        });
       }
     } catch (error) {
       console.error(error);
@@ -182,11 +233,12 @@ bot.on('message', async (ctx) => {
 
 /* reset old messages while the bot was offline */
 async function sendGetUpdatesRequest() {
-  const response = await axios.get(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/getUpdates?offset=-1`);
+  const response = await axios.get(
+    `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getUpdates?offset=-1`
+  );
   console.log(response.data);
 }
 
 sendGetUpdatesRequest();
-
 
 bot.launch();
