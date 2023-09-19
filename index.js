@@ -129,14 +129,14 @@ bot.on('message', async (ctx) => {
 
     let gifKeyword = '';
 
-    if (Math.random() > 0.85 && userId === secondId) {
+    if (Math.random() > 0.9 && userId === secondId) {
       // special reply for "second" user
       ctx.telegram.sendAnimation(
         chatId,
         'https://tenor.com/uk/view/bogdan-moment-gif-21819300',
         { reply_to_message_id: msgId }
       );
-    } else if (Math.random() > 0.5 && userId === thirdId) {
+    } else if (Math.random() > 0.6 && userId === thirdId) {
       // special reply for "third" user
       ctx.reply(`А сьо єто`, { reply_to_message_id: msgId });
     } else if (Math.random() > 0.85) {
@@ -200,7 +200,11 @@ bot.on('message', async (ctx) => {
   }
 
   /* send random gif */
-  if (Math.random() > 0.95 && ctx.message.hasOwnProperty('text')) {
+  if (
+    Math.random() > 0.95 &&
+    ctx.message.hasOwnProperty('text') &&
+    !msgText.includes('/')
+  ) {
     try {
       // translation
       const transMsgText = await translatte(msgText, {
@@ -228,6 +232,48 @@ bot.on('message', async (ctx) => {
       console.error(error);
       ctx.reply(`Я хотів відправити якусь смішнявку, але щось пішло не так😢`);
     }
+  }
+
+  /* for congratulations */
+  if (msgText === '/вітаю') {
+    const sendCongratsGif = async () => {
+      try {
+        const response = await axios.get(
+          `https://tenor.googleapis.com/v2/search?q=congratulations&key=${TENOR_API_KEY}&random=true&limit=3`
+        );
+
+        const gifUrls = response.data.results;
+
+        for (let i = 0; i < 3; i++) {
+          const sendGifUrl = gifUrls[i].url;
+          await ctx.telegram.sendAnimation(chatId, sendGifUrl);
+        }
+      } catch (error) {
+        console.error(error);
+        ctx.reply(`*Уяви що тут гіфка*`);
+      }
+    };
+
+    const sendPiecesOfWord = () => {
+      ctx
+        .reply(`🎉🥳🎉🥳🎉🥳🎉`)
+        .then(() => ctx.reply(`ВІ`))
+        .then(() => ctx.reply(`ТА`))
+        .then(() => ctx.reply(`Ю`))
+        .then(() => ctx.reply(`🎉🥳🎉🥳🎉🥳🎉`))
+        .then(() => sendCongratsGif())
+        .then(() => ctx.reply(`🎉🥳🎉🥳🎉🥳🎉`))
+        .then(() => ctx.reply(`ВІ`))
+        .then(() => ctx.reply(`ТА`))
+        .then(() => ctx.reply(`Ю`))
+        .then(() => sendCongratsGif())
+        .catch((error) => {
+          ctx.reply('Упс');
+          console.log(error);
+        });
+    };
+
+    sendPiecesOfWord();
   }
 });
 
