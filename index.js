@@ -46,35 +46,11 @@ bot.on('message', async (ctx) => {
     `${a.begin}${a.uaP}${a.uaR}${a.uaYi}${a.uaV}${a.uaI}${a.uaT}${a.end}`,
     'i'
   );
-  const engPryvit = new RegExp(
-    `${a.begin}${a.engP}${a.engR}${a.engY}(${a.engU})?${a.engV}(${a.engW})?${a.engI}${a.engT}${a.end}`,
-    'i'
-  );
   const engHello = new RegExp(
     `${a.begin}${a.engH}(${a.engE}|${a.engA})?${a.engL}(${a.engL})?${a.engO}${a.end}`,
     'i'
   );
-  const uaHello = new RegExp(
-    `${a.begin}${a.uaKh}(${a.uaE}|${a.uaA})?${a.uaL}(${a.uaL})?${a.uaO}(${a.uaU})?${a.end}`,
-    'i'
-  );
-  const engHi = new RegExp(`${a.begin}${a.engH}${a.engI}${a.end}`, 'i');
-  const uaHi = new RegExp(
-    `${a.begin}${a.uaKh}(${a.uaA}|${a.uaE})${a.uaY}${a.end}`,
-    'i'
-  );
-  const engZdarova = new RegExp(
-    `${a.begin}(${a.engZ})?${a.engD}(${a.engA}|${a.engO})?${a.engR}${a.engO}(${a.engV}|${a.engU})?(${a.engA})?${a.end}`,
-    'i'
-  );
-  const uaZdarova = new RegExp(
-    `${a.begin}(${a.uaZ})?${a.uaD}(${a.uaA}|${a.uaO})?${a.uaR}${a.uaO}(${a.uaV}|${a.uaU})?(${a.engA})?${a.end}`,
-    'i'
-  );
-  const engPrivet = new RegExp(
-    `${a.begin}${a.engP}(${a.engR})?${a.engI}(${a.engV}|${a.engW})?((${a.engE}${a.engT})|(${a.engK}${a.engI}))?${a.end}`,
-    'i'
-  );
+  const engHi = new RegExp(`hi`, 'i');
 
   /* variables for trigger words */
   const laugh = new RegExp(`${a.engA}${a.engH}${a.engA}${a.engH}`, 'i');
@@ -84,15 +60,7 @@ bot.on('message', async (ctx) => {
   /* check the message on ban words */
   if (
     userId !== firstId &&
-    (uaPryvit.test(msgText) ||
-      engPryvit.test(msgText) ||
-      engPrivet.test(msgText) ||
-      engHello.test(msgText) ||
-      uaHello.test(msgText) ||
-      engHi.test(msgText) ||
-      uaHi.test(msgText) ||
-      engZdarova.test(msgText) ||
-      uaZdarova.test(msgText))
+    (uaPryvit.test(msgText) || engHello.test(msgText) || engHi.test(msgText))
   ) {
     ctx.telegram.deleteMessage(chatId, msgId);
     ctx.reply(`@${username} пока🫡`);
@@ -234,7 +202,7 @@ bot.on('message', async (ctx) => {
     }
   }
 
-  /* for congratulations */
+  /* congratulations */
   if (msgText === '/вітаю') {
     const sendCongratsGif = async () => {
       try {
@@ -274,6 +242,73 @@ bot.on('message', async (ctx) => {
     };
 
     sendPiecesOfWord();
+  }
+
+  /* astrology */
+  if (msgText === '/гороскоп') {
+    const signs = {
+      inline_keyboard: [
+        [{ text: 'Овен ♈️', callback_data: 'Aries' }],
+        [{ text: 'Телець ♉️', callback_data: 'Taurus' }],
+        [{ text: 'Близнюки ♊️', callback_data: 'Gemini' }],
+        [{ text: 'Рак ♋️', callback_data: 'Cancer' }],
+        [{ text: 'Лев ♌️', callback_data: 'Leo' }],
+        [{ text: 'Діва ♍️', callback_data: 'Virgo' }],
+        [{ text: 'Терези ♎️', callback_data: 'Libra' }],
+        [{ text: 'Скорпіон ♏️', callback_data: 'Scorpio' }],
+        [{ text: 'Стрілець ♐️', callback_data: 'Sagittarius' }],
+        [{ text: 'Козеріг ♑️', callback_data: 'Capricorn' }],
+        [{ text: 'Водолій ♒️', callback_data: 'Aquarius' }],
+        [{ text: 'Риби ♓️', callback_data: 'Pisces' }],
+      ],
+    };
+
+    ctx.telegram.sendMessage(chatId, `Ваш знак зодіаку?`, {
+      reply_markup: JSON.stringify(signs),
+    });
+  }
+});
+
+/* reply for astrology buttons */
+bot.on('callback_query', async (ctx) => {
+  const chatId = ctx.callbackQuery.message.chat.id;
+  const msgId = ctx.callbackQuery.message.message_id;
+
+  ctx.telegram.deleteMessage(chatId, msgId);
+
+  try {
+    const sendingData = {
+      sign: ctx.callbackQuery.data,
+    };
+
+    // getting horoscope
+    const response = await axios.post(
+      'https://newastro.vercel.app/',
+      sendingData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const horoscope = response.data.horoscope;
+
+    try {
+      // translation
+      const transHoroscope = await translatte(horoscope, {
+        from: 'en',
+        to: 'uk',
+      });
+
+      ctx.reply(transHoroscope);
+    } catch (error) {
+      console.error(error);
+      ctx.reply(`Щось пішло не так😥`);
+    }
+  } catch (error) {
+    ctx.reply(`Щось пішло не так😥`);
+    console.error(error);
   }
 });
 
