@@ -142,31 +142,6 @@ bot.on('message', async (ctx) => {
     });
   }
 
-  /* search gifs */
-  if (botName.test(msgText)) {
-    const tag = msgText.replace(/[ ]?@anti_HI_bot[ ]?/g, '');
-
-    try {
-      // translation
-      const transTag = await translatte(tag, {
-        from: 'auto',
-        to: 'en',
-      });
-
-      const response = await axios.get(
-        `https://tenor.googleapis.com/v2/search?q=${transTag.text}&key=${TENOR_API_KEY}&random=true&limit=1`
-      );
-      const gifUrl = response.data.results[0].url;
-
-      ctx.telegram.sendAnimation(chatId, gifUrl, {
-        reply_to_message_id: msgId,
-      });
-    } catch (error) {
-      console.error(error);
-      ctx.reply(`Ти можеш нормальні запити робити?`);
-    }
-  }
-
   /* send random gif */
   if (
     Math.random() > 0.95 &&
@@ -202,8 +177,8 @@ bot.on('message', async (ctx) => {
     }
   }
 
-  /* congratulations */
-  if (msgText === '/greetings') {
+  /* greetings */
+  if (msgText === '/greetings@anti_HI_bot') {
     const sendCongratsGif = async () => {
       try {
         const response = await axios.get(
@@ -245,7 +220,7 @@ bot.on('message', async (ctx) => {
   }
 
   /* astrology */
-  if (msgText === '/horoscope') {
+  if (msgText === '/horoscope@anti_HI_bot') {
     const signs = {
       inline_keyboard: [
         [{ text: 'Овен ♈️', callback_data: 'Aries' }],
