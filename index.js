@@ -203,7 +203,7 @@ bot.on('message', async (ctx) => {
   }
 
   /* congratulations */
-  if (msgText === '/вітаю') {
+  if (msgText === '/greetings') {
     const sendCongratsGif = async () => {
       try {
         const response = await axios.get(
@@ -245,7 +245,7 @@ bot.on('message', async (ctx) => {
   }
 
   /* astrology */
-  if (msgText === '/гороскоп') {
+  if (msgText === '/horoscope') {
     const signs = {
       inline_keyboard: [
         [{ text: 'Овен ♈️', callback_data: 'Aries' }],
