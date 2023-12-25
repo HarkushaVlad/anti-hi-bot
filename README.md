@@ -37,6 +37,8 @@ To understand how to create regex queries based on your exported variables, let'
 Code example:
 
 ```javascript
+const a = require(`./alphabet`);
+
 const uaPryvit = new RegExp(
   `${a.begin}${a.uaP}${a.uaR}${a.uaYi}${a.uaV}${a.uaI}${a.uaT}${a.end}`,
   'i'
@@ -46,6 +48,8 @@ const engHello = new RegExp(
   'i'
 );
 // ... and so on for other patterns
+
+const banWords = [uaPryvit, engHello, engHi];
 ```
 
 In this example:
@@ -65,3 +69,5 @@ With this explanation, you can apply a similar approach to build your own regex 
 3. Utilize Alternation: When you have alternatives, like `(engE|engA)`, it matches either "E" or "A."
 
 4. Use Quantifiers: For optional characters or groups, like `(${a.engU})?`, you're making "U" optional.
+
+5. Update the `banWords` array with the words you have created.
